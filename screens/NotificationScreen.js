@@ -1,26 +1,7 @@
 // Import necessary components from React Native library
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Linking,
-} from "react-native";
-import { Dimensions } from "react-native";
-
-export const myWidth = Dimensions.get("window").width;
-export const myHeight = Dimensions.get("window").height;
-const standardWidth = 375.0;
-const standardHeight = 667.0;
-
-export function widthScale(dimension) {
-  return (dimension / standardWidth) * myWidth;
-}
-
-export function heightScale(dimension) {
-  return (dimension / standardHeight) * myHeight;
-}
+import { StyleSheet, Text, View, Linking } from "react-native";
+import { horizontalScale, verticalScale, moderateScale } from "./Metrics";
 
 // Define Notification component that takes stressLevel and stressDuration props
 // and renders a notification with breathing and meditation exercises suggestions,
@@ -160,79 +141,42 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "black",
   },
-  title: {
-    fontSize: widthScale(24), // Scale font size based on width
-    fontWeight: "bold",
-    marginBottom: heightScale(80), // Scale margin based on height
-    // ...
-  },
   summaryText1: {
-    fontSize: widthScale(30), // Scale font size based on width
+    fontSize: horizontalScale(30), // Scale font size based on width
     textAlign: "center",
     fontWeight: "bold",
     color: "#ff8c00",
-    marginBottom: heightScale(20), // Scale margin based on height
-    // ...
+    marginBottom: verticalScale(1), // Scale margin based on height
   },
   summaryContainer: {
-    marginBottom: 40,
-  },
-  summaryText: {
-    fontSize: 18,
-    textAlign: "center",
-    color: "#ff8c00",
-    marginTop: 10,
-    marginBottom: 20,
-    // animationDuration: '6s',
-    // animationName: 'fadeInLeft',
-    // animationIterationcount: 1,
-  },
-
-  suggestionContainer: {
-    flexDirection: "column",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  suggestionButton: {
-    backgroundColor: "blue",
-    borderRadius: 5,
-    padding: 10,
-    marginHorizontal: 10,
-  },
-  suggestionButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    textAlign: "center",
-  },
-  reminderContainer: {
-    marginBottom: 20,
-    marginTop: 20,
-  },
-  reminderText: {
-    fontSize: 16,
-    textAlign: "center",
-    color: "#ff8c00",
-  },
-  resourceContainer: {
-    marginBottom: 10,
-    marginTop: 10,
+    marginBottom: moderateScale(40),
   },
   resourceText: {
-    fontSize: 16,
+    fontSize: moderateScale(16),
     textAlign: "center",
     color: "#ff8c00",
-    marginTop: 10,
-    // animationDuration: '8s',
-    // animationName: 'fadeInRight',
-    // animationIterationcount: 1,
+    marginTop: moderateScale(10),
   },
   resourceLink: {
     color: "white",
     textDecorationLine: "underline",
-    marginVertical: 5,
-    fontSize: 20,
+    marginVertical: moderateScale(5),
+    fontSize: moderateScale(15),
     textAlign: "center",
-    marginTop: 10,
+    marginTop: moderateScale(10),
+  },
+  reminderContainer: {
+    marginBottom: moderateScale(20),
+    marginTop: moderateScale(20),
+  },
+  reminderText: {
+    fontSize: moderateScale(16),
+    textAlign: "center",
+    color: "#ff8c00",
+  },
+  resourceContainer: {
+    marginBottom: moderateScale(10),
+    marginTop: moderateScale(10),
   },
 });
 

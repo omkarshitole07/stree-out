@@ -5,8 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Keyboard,
 } from "react-native";
 import { writeUserData, auth, getUserData } from "../firebase";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 function ProfileScreen({ navigation }) {
   const currentUser = auth.currentUser;
@@ -18,8 +20,8 @@ function ProfileScreen({ navigation }) {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [medicalHistory, setMedicalHistory] = useState("");
   const [activityHistory, setActivityHistory] = useState("");
-  const [lastQuizResults, setLastQuizResults] = useState(null); // Add state for lastQuizResults
-  // Function to fetch user data when the component mounts
+  const [lastQuizResults, setLastQuizResults] = useState(null);
+
   useEffect(() => {
     getUserData(currentUser.uid).then((userData) => {
       if (userData) {
@@ -51,14 +53,20 @@ function ProfileScreen({ navigation }) {
     )
       .then(() => {
         console.log("Profile data saved successfully.");
-        toggleEdit(); // After saving, exit edit mode
+        toggleEdit();
+        Keyboard.dismiss(); // Dismiss the keyboard after saving
       })
       .catch((error) => {
         console.error("Error saving profile data:", error);
       });
   };
+
   return (
-    <View style={styles.container}>
+    <KeyboardAwareScrollView
+      contentContainerStyle={styles.container}
+      extraScrollHeight={20} // Adjust as needed
+      extraHeight={-20} // Adjust as needed
+    >
       <Text style={styles.title}>Welcome {currentUser.email}</Text>
       <Text style={styles.info}>Name: {name}</Text>
       <Text style={styles.info}>Gender: {gender}</Text>
@@ -67,11 +75,10 @@ function ProfileScreen({ navigation }) {
       <Text style={styles.info}>Medical History: {medicalHistory}</Text>
       <Text style={styles.info}>Activity History: {activityHistory}</Text>
       <Text style={styles.info}>
-  Last Quiz Results: {lastQuizResults ? lastQuizResults.severity : "N/A"}
-</Text>
+        Last Quiz Results: {lastQuizResults ? lastQuizResults.severity : "N/A"}
+      </Text>
 
       {isEditing ? (
-        // Editable input fields
         <>
           <TextInput
             style={styles.input}
@@ -115,7 +122,6 @@ function ProfileScreen({ navigation }) {
           </TouchableOpacity>
         </>
       ) : (
-        // Display user profile data
         <>
           <Text>Name: {name}</Text>
           <Text>Gender: {gender}</Text>
@@ -133,7 +139,7 @@ function ProfileScreen({ navigation }) {
           </TouchableOpacity>
         </>
       )}
-    </View>
+    </KeyboardAwareScrollView>
   );
 }
 
@@ -142,7 +148,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     backgroundColor: "black",
-    padding: 20,
+    padding: 15,
   },
   title: {
     fontSize: 24,
@@ -171,9 +177,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   info: {
-    fontSize: 24,
+    fontSize: 25,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: -2,
     color: "white",
     alignSelf: "flex-start",
   },

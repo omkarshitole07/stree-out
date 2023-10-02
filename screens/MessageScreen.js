@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
-import { auth } from "../firebase"; // Import auth from your firebase.js file
+import { auth } from "../firebase";
+import { horizontalScale, moderateScale, verticalScale } from "./Metrics";
 
-import { getDatabase, ref, update } from "firebase/database"; // Import getDatabase, ref, and update
+import { getDatabase, ref, update } from "firebase/database";
 
-// Array of questions to be asked during the quiz
 const questions = [
   "Have you felt sad or empty most of the day nearly every day?",
   "Have you lost interest in activities that you used to enjoy?",
@@ -27,15 +27,12 @@ const updateUserWithQuizResults = (userId, lastQuizResults) => {
   }
 };
 
-// Define a functional component called MessageScreen
 const MessageScreen = () => {
-  // Declare states for the question index, score, and finishedQuiz
   const [questionIndex, setQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [finishedQuiz, setFinishedQuiz] = useState(false);
   const [lastQuizResults, setLastQuizResults] = useState(null);
 
-  // Handle the user's answer to a question and update the score and/or progress through the quiz
   const handleAnswer = (answer) => {
     if (answer === "yes") {
       setScore(score + 1);
@@ -44,11 +41,11 @@ const MessageScreen = () => {
     if (questionIndex === questions.length - 1) {
       if (score >= 3) {
         const quizResults = {
-          score: score * 2, // Adjust the score out of 5
+          score: score * 2,
           depression: score >= 3 ? true : false,
           assessmentDate: new Date().toISOString(),
           assessmentType: "Depression Assessment",
-          severity: determineSeverity(score), // Function to determine severity
+          severity: determineSeverity(score),
           resources: {
             crisisHelpline: "123-456-7890",
             selfHelpWebsite: "https://example.com/self-help",
@@ -95,7 +92,6 @@ const MessageScreen = () => {
     }
   };
 
-  // Handle user's retake of the quiz by resetting question index, score, and finishedQuiz states
   const handleRetakeQuiz = () => {
     setScore(0);
     setQuestionIndex(0);
@@ -103,7 +99,6 @@ const MessageScreen = () => {
     setLastQuizResults(null);
   };
 
-  // Render the retake quiz button if the user has finished; otherwise, render the question and answer buttons
   if (finishedQuiz) {
     return (
       <View style={styles.container}>
@@ -118,7 +113,9 @@ const MessageScreen = () => {
   } else {
     return (
       <View style={styles.container}>
-        <Text style={styles.question}>{questions[questionIndex]}</Text>
+        <Text style={[styles.question, { marginVertical: verticalScale(40) }]}>
+          {questions[questionIndex]}
+        </Text>
         <View style={styles.buttonContainer}>
           <Button
             title="Yes"
@@ -138,7 +135,6 @@ const MessageScreen = () => {
   }
 };
 
-// Define custom styles using StyleSheet API
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -147,10 +143,10 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
   },
   question: {
-    fontSize: 24,
+    fontSize: verticalScale(24),
     fontWeight: "bold",
     textAlign: "center",
-    marginVertical: 40,
+    marginVertical: verticalScale(40),
     color: "#ffa500",
   },
   buttonContainer: {
@@ -158,16 +154,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     width: "80%",
   },
-  result: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
   boldButton: {
     fontWeight: "bold",
     color: "#ff8c00",
   },
 });
 
-// Export the MessageScreen component as the default export
 export default MessageScreen;
