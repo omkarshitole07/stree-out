@@ -1,3 +1,6 @@
 {
-  "urlRandomness": "yXaUTR4"
+  "urlRandomness": "yXaUTR4",
+  "dev": true,
+  "minify": false,
+  "https": false
 }

@@ -5,10 +5,19 @@ import { getAuth } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 import { manipulateAsync } from 'expo-image-manipulator';
+//import ImgToBase64 from 'react-native-image-base64';
+//import ReactImagePicker from 'react-native-image-picker';
+//import RNFS from 'react-native-fs';
+import * as FileSystem from 'expo-file-system';
+let predictionValue = "";
 
 const PostScreen = () => {
   // State to store the URI of the selected image
   const [imageUri, setImageUri] = useState(null);
+  const [sending, setSending] = useState(false);
+  const [activating, setActivating] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [prediction, setPrediction] = useState(false);
 
   // Handler for when an image is picked from the gallery or taken from the camera
   const handleImagePickerResult = (result) => {
@@ -24,7 +33,6 @@ const PostScreen = () => {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
       });
-
       handleImagePickerResult(result);
     } catch (error) {
       console.error(error);
@@ -106,8 +114,73 @@ const PostScreen = () => {
     catch (error) {
       console.error(error);
       alert('An error occurred while uploading the image.');
-}
+    }
+  };
 
+  // 11/01/2023 by Yuxiang Liu
+  const handleAnalyzePress = async () => {
+    setPrediction(false);
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      // Convert the selected image to base64
+      try {
+        const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        const jsonBody = {
+          "image": base64
+        };
+        sendJSONToAPI(jsonBody);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+  
+  const sendJSONToAPI = async (jsonBody) => {
+    try {
+      startTimer();
+      const apiUrl = 'https://render-detection-api.onrender.com'; 
+  
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jsonBody),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }else{
+        setActivating(false);
+        setSending(false);
+        setAnalyzing(false);
+      }
+      const jsonResponse = await response.json();
+      console.log('API response:', jsonResponse);
+      predictionValue = (Number(jsonResponse.prediction) * 100) + "%";
+      setPrediction(true);
+    } catch (error) {
+      console.error('Error sending JSON to API:', error);
+      setAnalyzing(false);
+      alert('Falied to send image \n Please try again')
+    }
+  };
+  const startTimer = () => {
+    setActivating(true);
+    setTimeout(() => {
+        setActivating(false);
+        setSending(true);
+        setTimeout(() => {
+          setSending(false);
+          setAnalyzing(true);
+        }, 2000);
+    }, 3000);
   };
 
    // Return JSX elements to draw UI
@@ -149,6 +222,23 @@ const PostScreen = () => {
                   </View>
           </TouchableHighlight>
       </View>
+      <View style={styles.buttonContainer}>
+          <TouchableHighlight 
+              onPress={() => { 
+                handleAnalyzePress();
+              }}
+          >
+                  <View style={styles.button}> 
+                      <Text style={styles.buttonText}>Analyze image</Text>
+                  </View>
+          </TouchableHighlight>
+      </View>
+      <View style={styles.analyzeBox}>
+        {activating && <Text style={styles.analyzeText}>Activating server...</Text>}
+        {sending && <Text style={styles.analyzeText}>Sending image...</Text>}
+        {analyzing && <Text style={styles.analyzeText}>Analyzing image...</Text>}
+        {prediction && <Text style={styles.analyzeText}>The probability of depression is: {predictionValue}</Text>}
+      </View>
       </ScrollView>
 
   );
@@ -183,5 +273,13 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 18,
+  },
+  analyzeBox:{
+    marginBottom: 20,
+  },
+  analyzeText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 20,
   },
 });
