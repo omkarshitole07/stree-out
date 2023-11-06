@@ -163,7 +163,11 @@ const PostScreen = () => {
       }
       const jsonResponse = await response.json();
       console.log('API response:', jsonResponse);
-      predictionValue = (Number(jsonResponse.prediction) * 100) + "%";
+      if(predictionValue=="<0.01"){
+        predictionValue = "\nless than 1%";
+      }else{
+        predictionValue = (Number(jsonResponse.prediction) * 100) + "%";
+      }
       setPrediction(true);
     } catch (error) {
       console.error('Error sending JSON to API:', error);
