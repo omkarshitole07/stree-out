@@ -163,10 +163,11 @@ const PostScreen = () => {
       }
       const jsonResponse = await response.json();
       console.log('API response:', jsonResponse);
-      if(predictionValue=="<0.01"){
+      if(jsonResponse.prediction=="<0.01"){
         predictionValue = "\nless than 1%";
       }else{
-        predictionValue = (Number(jsonResponse.prediction) * 100) + "%";
+        let roundedNumber = Number(jsonResponse.prediction).toFixed(2);
+        predictionValue = roundedNumber * 100 + "%";
       }
       setPrediction(true);
     } catch (error) {
