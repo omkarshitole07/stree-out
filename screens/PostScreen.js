@@ -1,23 +1,20 @@
 import React, { useState } from 'react';
-import { Button, Image, View, Text, ScrollView, TouchableHighlight, StyleSheet } from 'react-native';
+import { Button, Image, View, Text, ScrollView, TouchableHighlight, StyleSheet, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { getAuth } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 import { manipulateAsync } from 'expo-image-manipulator';
-//import ImgToBase64 from 'react-native-image-base64';
-//import ReactImagePicker from 'react-native-image-picker';
-//import RNFS from 'react-native-fs';
 import * as FileSystem from 'expo-file-system';
+
 let predictionValue = "";
 
 const PostScreen = () => {
   // State to store the URI of the selected image
   const [imageUri, setImageUri] = useState(null);
-  const [sending, setSending] = useState(false);
-  const [activating, setActivating] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
   const [prediction, setPrediction] = useState(false);
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Handler for when an image is picked from the gallery or taken from the camera
   const handleImagePickerResult = (result) => {
@@ -123,7 +120,7 @@ const PostScreen = () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 1,
+      quality: 0.6,
     });
 
     if (!result.canceled) {
@@ -145,6 +142,7 @@ const PostScreen = () => {
   const sendJSONToAPI = async (jsonBody) => {
     try {
       startTimer();
+      setLoading(true);
       const apiUrl = 'https://render-detection-api.onrender.com'; 
   
       const response = await fetch(apiUrl, {
@@ -157,34 +155,36 @@ const PostScreen = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }else{
-        setActivating(false);
-        setSending(false);
-        setAnalyzing(false);
+        const jsonResponse = await response.json();
+        console.log('API response:', jsonResponse);
+        if(jsonResponse.prediction=="<0.01"){
+          predictionValue = "\nless than 1%";
+        }else{
+          let roundedNumber = Math.round(Number(jsonResponse.prediction) * 100);
+          predictionValue = roundedNumber + "%";
+        }
+        setLoading(false);
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        setStatus('');
+        setPrediction(true);
       }
-      const jsonResponse = await response.json();
-      console.log('API response:', jsonResponse);
-      if(jsonResponse.prediction=="<0.01"){
-        predictionValue = "\nless than 1%";
-      }else{
-        let roundedNumber = Number(jsonResponse.prediction).toFixed(2);
-        predictionValue = roundedNumber * 100 + "%";
-      }
-      setPrediction(true);
     } catch (error) {
+      setLoading(false);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      setStatus('');
       console.error('Error sending JSON to API:', error);
-      setAnalyzing(false);
-      alert('Falied to send image \n Please try again')
+      alert('Falied to analyze image \n Please try again later');
     }
   };
   const startTimer = () => {
-    setActivating(true);
-    setTimeout(() => {
-        setActivating(false);
-        setSending(true);
-        setTimeout(() => {
-          setSending(false);
-          setAnalyzing(true);
-        }, 2000);
+    setStatus('Activating server...');
+    timer1 = setTimeout(() => {
+      setStatus('Sending image...');
+      timer2 = setTimeout(() => {
+        setStatus('Analyzing image...');
+      }, 2000);
     }, 3000);
   };
 
@@ -238,12 +238,17 @@ const PostScreen = () => {
                   </View>
           </TouchableHighlight>
       </View>
-      <View style={styles.analyzeBox}>
-        {activating && <Text style={styles.analyzeText}>Activating server...</Text>}
-        {sending && <Text style={styles.analyzeText}>Sending image...</Text>}
-        {analyzing && <Text style={styles.analyzeText}>Analyzing image...</Text>}
-        {prediction && <Text style={styles.analyzeText}>The probability of depression is: {predictionValue}</Text>}
-      </View>
+        <View style={styles.horizontal}>
+          <View style={styles.progressBox}>
+            {loading && (
+              <ActivityIndicator size="small" color="#ff8c00" />
+            )}
+          </View>
+          <View style={styles.analyzeBox}>
+            {status && <Text style={styles.analyzeText}>{status}</Text>}
+            {prediction && <Text style={styles.analyzeText}>The probability of depression is: {predictionValue}</Text>}
+          </View>
+        </View>
       </ScrollView>
 
   );
@@ -278,6 +283,13 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 18,
+  },
+  horizontal: {
+    flexDirection: 'row',
+  },
+  progressBox:{
+    marginRight: 10,
+    marginTop: 2,
   },
   analyzeBox:{
     marginBottom: 20,
