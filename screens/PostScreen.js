@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Image, View, Text, ScrollView, TouchableHighlight, StyleSheet, ActivityIndicator } from 'react-native';
+import { Button, Image, View, Text, ScrollView, TouchableHighlight, StyleSheet, ActivityIndicator,TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { getAuth } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -9,7 +9,7 @@ import * as FileSystem from 'expo-file-system';
 
 let predictionValue = "";
 
-const PostScreen = () => {
+const PostScreen = ({ navigation }) => {
   // State to store the URI of the selected image
   const [imageUri, setImageUri] = useState(null);
   const [prediction, setPrediction] = useState(false);
@@ -187,6 +187,7 @@ const PostScreen = () => {
       }, 2000);
     }, 3000);
   };
+  
 
    // Return JSX elements to draw UI
   return (
@@ -227,16 +228,26 @@ const PostScreen = () => {
                   </View>
           </TouchableHighlight>
       </View>
-      <View style={styles.buttonContainer}>
-          <TouchableHighlight 
-              onPress={() => { 
-                handleAnalyzePress();
-              }}
-          >
-                  <View style={styles.button}> 
-                      <Text style={styles.buttonText}>Analyze image</Text>
-                  </View>
-          </TouchableHighlight>
+      <View style={styles.horizontal}>
+          <View style={styles.analyzeButtonContainer}>
+              <TouchableHighlight 
+                  onPress={() => { 
+                    handleAnalyzePress();
+                  }}
+              >
+                      <View style={styles.button}> 
+                          <Text style={styles.buttonText}>Analyze image</Text>
+                      </View>
+              </TouchableHighlight>
+          </View>
+          <View style={styles.analyzeInfo}>
+            <TouchableOpacity onPress={() => navigation.navigate('AnalyzeInfo')}>
+              <Image
+                source={require('../assets/question.png')} 
+                style={{ width: 27, height: 27 }} 
+              />
+            </TouchableOpacity>
+          </View>
       </View>
         <View style={styles.horizontal}>
           <View style={styles.progressBox}>
@@ -291,6 +302,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginTop: 2,
   },
+  analyzeButtonContainer:{
+    marginLeft: 38,
+    margin: 10,
+    alignItems: 'center',
+  },
   analyzeBox:{
     marginBottom: 20,
   },
@@ -299,4 +315,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20,
   },
+  analyzeInfo:{
+    marginTop: 38,
+  }
 });
