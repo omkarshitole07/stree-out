@@ -6,7 +6,7 @@ import { View, Text, ScrollView,StyleSheet, Image, TextInput, Dimensions, Toucha
 // Import Firebase auth library and our firebase config file
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase"
-
+import { Alert } from 'react-native';
 // Get device height and width for styling purposes
 let deviceHeight = Dimensions.get('window').height;
 let deviceWidth = Dimensions.get('window').width;
@@ -17,9 +17,9 @@ function SignInScreen({ navigation }) {
   // Initialize email and password state variables using useState hook
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-
+  const [error, setError] = useState(null);
   // Define signInHandler function within SignInScreen component
-  signInHandler = () => {
+  const signInHandler = () => {
     // Use Firebase auth library's signInWithEmailAndPassword method to sign in user
     signInWithEmailAndPassword(auth, email,  password)
         .then((userCredential) => {
@@ -27,10 +27,19 @@ function SignInScreen({ navigation }) {
             navigation.navigate('Home')
         })
         .catch((error) => {
-          // If there's an error, alert user with error message
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          alert('Error: '+ errorMessage)
+        // If there's an error, alert user with error message
+        const errorCode = error.code;
+        if(errorCode=="auth/wrong-password"){
+            setError("Incorrect password");
+        }
+        if(errorCode=="auth/user-not-found"){
+            setError("Account doesn't exist");
+        }
+        if(errorCode=="auth/too-many-requests"){
+            setError("Account disabled due to many failed login attemps");
+        }
+        console.log(errorMessage);
+        console.log(errorCode);
         }); 
   }
 
@@ -40,7 +49,7 @@ function SignInScreen({ navigation }) {
           <View>
               {/* Display logo on screen */}
               <Image
-                  source={require('../assets/Logo.png')}
+                  source={require('../assets/logo_final.png')}
                   style={styles.logo}
               />
           </View>
@@ -54,13 +63,14 @@ function SignInScreen({ navigation }) {
           <View style={styles.LogoTextInputContainer}>
               <View style={styles.LogoContainer}>
                   <Image
-                      source={require('../assets/email.png')}
+                      source={require('../assets/new_email_logo.png')}
                       style={styles.emailLogo}
                   />
               </View>
-              <View style={styles.TextInputContainer}> 
+              <View style={styles.TextBoxContainer}> 
                   <TextInput style={styles.TextInput}
                       placeholder="Email"
+                      placeholderTextColor="#ff8c00"
                       onChangeText={(email) => setEmail(email)}
                       value={email}
                   /> 
@@ -71,13 +81,14 @@ function SignInScreen({ navigation }) {
           <View style={styles.LogoTextInputContainer}>
               <View style={styles.LogoContainer}>
                   <Image
-                      source={require('../assets/password_locked.png')}
+                      source={require('../assets/new_password_logo.png')}
                       style={styles.passwordLogo}
                   />
               </View>
-              <View style={styles.TextInputContainer}> 
+              <View style={styles.TextBoxContainer}> 
                   <TextInput style={styles.TextInput}
                       placeholder="Password"
+                      placeholderTextColor="#ff8c00"
                       secureTextEntry= {true}
                       onChangeText={(password) => setPassword(password)}
                       value={password}
@@ -91,18 +102,27 @@ function SignInScreen({ navigation }) {
                   onPress={() => { 
                       signInHandler()
                   }}
+                  underlayColor="rgba(0, 0, 0, 0)"
               >
                       <View style={styles.button}> 
                           <Text style={styles.buttonText}>Sign In</Text>
                       </View>
               </TouchableHighlight>
+              {/* Showing error when log in*/}
+              {error && (
+                    Alert.alert(
+                        'Error',
+                        error,
+                        [{ text: 'OK', onPress: () => setError(null) }]
+                    )           
+              )}
           </View>
 
           {/* Display 'Forget Password?' text link */}
           <View style={styles.LinkButton}> 
               <TouchableHighlight
                   onPress={() => { 
-                      
+                    underlayColor="rgba(0, 0, 0, 0)"
                   }}
               >
                   <Text style={styles.LinkButtonText}>Forget Password?</Text>
@@ -115,14 +135,17 @@ function SignInScreen({ navigation }) {
                   onPress={() => { 
                       navigation.navigate('SignUp')
                   }}
+                  underlayColor="rgba(0, 0, 0, 0)"
               >
                   <Text style={styles.LinkButtonText}>Don't have an account?</Text>
               </TouchableHighlight>
           </View>
+          {/*
           <Image
                style={styles.logo3}
                source={require('../assets/users/logo3.jpeg')}
-      />
+          />
+          */}
       </ScrollView>
   );
 }
@@ -137,8 +160,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
-        backgroundColor: 'black',
-        paddingBottom: 210
+        backgroundColor: '#000000',
+        paddingBottom: 150
         
     },
     logo: {
@@ -147,13 +170,12 @@ const styles = StyleSheet.create({
         resizeMode: "contain",
         marginTop:10
         
-        
-
     },
     text: {
         fontSize: 24,
         marginTop: 10,
         marginBottom: 10,
+        fontWeight: 'bold',
         color: '#ff8c00',
     },
     LogoTextInputContainer: {
@@ -164,9 +186,9 @@ const styles = StyleSheet.create({
         
     },
     LogoContainer: {
-        height: 50,
-        width: 1*deviceWidth/8,
-        borderWidth: 1,
+        height: 55,
+        width: 1*deviceWidth/7,
+        borderWidth: 2,
         borderColor: '#ff8c00',
         justifyContent: 'center',
         alignItems: 'center',
@@ -174,21 +196,26 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 15,
     },
     emailLogo: {
-        height:  0.08 * deviceWidth,
-        width: 0.08 * deviceWidth,
+        height:  0.06 * deviceWidth,
+        width: 0.06 * deviceWidth,
     },
     passwordLogo: {
-        height: 0.08 * deviceWidth,
-        width: 0.08 * deviceWidth,
+        height: 0.06 * deviceWidth,
+        width: 0.06 * deviceWidth,
     },
     TextInput: {
-        backgroundColor: "white",
-        paddingHorizontal: 15,
-        paddingVertical: 20,
-        borderRadius: 5,
-        marginBottom: 0,
-        fontWeight: 'bold'
-        
+        color: '#ff8c00',
+        paddingHorizontal: 10,
+        paddingVertical: 18,
+    },
+    TextBoxContainer: {
+        height: 55,
+        width: "70%",
+        borderWidth: 2,
+        borderColor: '#ff8c00',
+        alignItems: 'flex-start',
+        borderTopRightRadius: 15,
+        borderBottomRightRadius: 15,
     },
     TextInputContainer: {
         // height: 50,
@@ -207,7 +234,6 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         marginTop: 25,
-       
     },
     button: {
         backgroundColor: '#ff8c00',
@@ -218,6 +244,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     buttonText: {
+        fontSize: 16,
         color: 'white',
         fontWeight: 'bold'
     },
@@ -225,6 +252,7 @@ const styles = StyleSheet.create({
         marginTop: 25
     },
     LinkButtonText: {
+        fontSize: 16,
         fontWeight: 'bold',
         color: '#ffa500',
     },

@@ -92,13 +92,14 @@ function SignUpScreen({ navigation }) {
       <View style={styles.LogoTextInputContainer}>
         <View style={styles.LogoContainer}>
           <Image
-            source={require("../assets/email.png")}
+            source={require('../assets/new_email_logo.png')}
             style={styles.emailLogo}
           />
         </View>
-        <View style={styles.TextInputContainer}>
+        <View style={styles.TextBoxContainer}>
           <TextInput
             style={styles.TextInput}
+            placeholderTextColor="#ff8c00"
             placeholder="Email"
             onChangeText={(email) => setEmail(email)}
             value={email}
@@ -109,13 +110,14 @@ function SignUpScreen({ navigation }) {
       <View style={styles.LogoTextInputContainer}>
         <View style={styles.LogoContainer}>
           <Image
-            source={require("../assets/password_unlocked.png")}
+            source={require('../assets/new_password_logo.png')}
             style={styles.passwordLogo}
           />
         </View>
-        <View style={styles.TextInputContainer}>
+        <View style={styles.TextBoxContainer}>
           <TextInput
             style={styles.TextInput}
+            placeholderTextColor="#ff8c00"
             placeholder="Password"
             secureTextEntry={true}
             onChangeText={(password) => setPassword(password)}
@@ -127,13 +129,14 @@ function SignUpScreen({ navigation }) {
       <View style={styles.LogoTextInputContainer}>
         <View style={styles.LogoContainer}>
           <Image
-            source={require("../assets/password_unlocked.png")}
+            source={require('../assets/new_password_logo.png')}
             style={styles.passwordLogo}
           />
         </View>
-        <View style={styles.TextInputContainer}>
+        <View style={styles.TextBoxContainer}>
           <TextInput
             style={styles.TextInput}
+            placeholderTextColor="#ff8c00"
             placeholder="Repeat Password"
             secureTextEntry={true}
             onChangeText={(password2) => setPassword2(password2)}
@@ -176,8 +179,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    paddingBottom: 100,
-    backgroundColor: "black",
+    paddingBottom: 150,
+    backgroundColor: '#000000',
   },
   logo: {
     height: 100,
@@ -188,7 +191,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginTop: 10,
     marginBottom: 10,
-    color: "#ff8c00",
+    fontWeight: 'bold',
+    color: '#ff8c00',
   },
   LogoTextInputContainer: {
     flexDirection: "row",
@@ -197,30 +201,36 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   LogoContainer: {
-    height: 50,
-    width: (1 * deviceWidth) / 8,
-    borderWidth: 1,
-    borderColor: "#ff8c00",
-    justifyContent: "center",
-    alignItems: "center",
+    height: 55,
+    width: 1*deviceWidth/7,
+    borderWidth: 2,
+    borderColor: '#ff8c00',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderTopLeftRadius: 15,
     borderBottomLeftRadius: 15,
   },
   emailLogo: {
-    height: 50,
-    width: 50,
+    height:  0.06 * deviceWidth,
+    width: 0.06 * deviceWidth,
   },
   passwordLogo: {
-    height: 50,
-    width: 50,
+    height: 0.06 * deviceWidth,
+    width: 0.06 * deviceWidth,
   },
   TextInput: {
-    backgroundColor: "white",
-    paddingHorizontal: 15,
-    paddingVertical: 20,
-    borderRadius: 5,
-    marginBottom: 0,
-    fontWeight: "bold",
+    color: '#ff8c00',
+    paddingHorizontal: 10,
+    paddingVertical: 18,
+  },
+  TextBoxContainer: {
+    height: 55,
+    width: "70%",
+    borderWidth: 2,
+    borderColor: '#ff8c00',
+    alignItems: 'flex-start',
+    borderTopRightRadius: 15,
+    borderBottomRightRadius: 15,
   },
   TextInputContainer: {
     borderRadius: 20,
@@ -239,14 +249,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   buttonText: {
-    color: "white",
-    fontWeight: "bold",
+    fontSize: 16,
+    color: 'white',
+    fontWeight: 'bold'
   },
   LinkButton: {
     marginTop: 25,
   },
   LinkButtonText: {
-    fontWeight: "bold",
-    color: "#ffa500",
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ffa500',
   },
 });

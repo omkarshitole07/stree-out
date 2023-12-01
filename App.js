@@ -15,6 +15,7 @@ import PostScreen from "./screens/PostScreen";
 import MessageScreen from "./screens/MessageScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import NotificationScreen from './screens/NotificationScreen';
+import AnalyzeInfo from './screens/AnalyzeInfo';
 
 // Create stack navigators for App, Tabs, and Navigation Stack.
 const Stack = createNativeStackNavigator();
@@ -94,6 +95,14 @@ const App = () => {
               backgroundColor: "#fff",
               elevation: 0,
             },
+          }}
+        />
+        <NavigationStack.Screen
+          name="AnalyzeInfo"
+          component={AnalyzeInfo} 
+          options={{
+            headerShown: true,
+            title: 'Instruction',
           }}
         />
       </NavigationStack.Navigator>
